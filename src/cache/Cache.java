@@ -1,0 +1,129 @@
+package cache;
+
+import policy.ReplacementPolicy;
+import write.WritePolicy;
+import stats.SimulationStats;
+
+/**
+ * Abstract base class for all cache types.
+ * 
+ * All three mapping techniques (Direct Mapped, Set Associative, Fully Associative)
+ * extend this class and override the core access() method.
+ * 
+ * Holds references to pluggable ReplacementPolicy and WritePolicy (Strategy Pattern).
+ */
+public abstract class Cache {
+
+    protected int cacheSize;        // Total cache size in bytes
+    protected int blockSize;        // Size of each cache block in bytes
+    protected int numberOfBlocks;   // Total number of blocks = cacheSize / blockSize
+
+    protected int offsetBits;       // Number of bits for block offset
+    protected int indexBits;        // Number of bits for index (0 for fully associative)
+    protected int tagBits;          // Number of bits for tag
+
+    protected ReplacementPolicy replacementPolicy;
+    protected WritePolicy writePolicy;
+
+    protected SimulationStats stats;
+
+    /**
+     * @param cacheSize         Total size of cache in bytes
+     * @param blockSize         Size of each block in bytes
+     * @param replacementPolicy LRU or FIFO policy instance
+     * @param writePolicy       WriteBack or WriteThrough policy instance
+     * @param stats             Shared stats object to record hits/misses
+     */
+    
+    public Cache(int cacheSize, int blockSize,
+                ReplacementPolicy replacementPolicy,
+                WritePolicy writePolicy,
+                SimulationStats stats) {
+
+        this.cacheSize = cacheSize;
+        this.blockSize = blockSize;
+        this.numberOfBlocks = cacheSize / blockSize;
+        this.replacementPolicy = replacementPolicy;
+        this.writePolicy = writePolicy;
+        this.stats = stats;
+
+        this.offsetBits = log2(blockSize);
+        this.indexBits = computeIndexBits();
+        this.tagBits = 32 - indexBits - offsetBits; // 32-bit addresses
+    }
+
+    // -------------------------------------------------------------------------
+    // Abstract methods — each cache type must implement these
+    // -------------------------------------------------------------------------
+
+    /**
+     * Process a single memory access (read or write).
+     * Must update stats on hit or miss.
+     *
+     * @param address 32-bit memory address
+     * @param isWrite true if write operation, false if read
+     */
+    public abstract void access(int address, boolean isWrite);
+
+    /**
+     * Compute how many index bits this cache type uses.
+     * Direct Mapped and Set Associative have index bits.
+     * Fully Associative has 0 index bits.
+     */
+    protected abstract int computeIndexBits();
+
+    // -------------------------------------------------------------------------
+    // Shared address decomposition helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Extract the block offset from a 32-bit address.
+     */
+    protected int getOffset(int address) {
+        return address & ((1 << offsetBits) - 1);
+    }
+
+    /**
+     * Extract the index from a 32-bit address.
+     * Returns 0 for fully associative (no index).
+     */
+    protected int getIndex(int address) {
+        if (indexBits == 0) return 0;
+        return (address >> offsetBits) & ((1 << indexBits) - 1);
+    }
+
+    /**
+     * Extract the tag from a 32-bit address.
+     */
+    protected int getTag(int address) {
+        return (address >> (offsetBits + indexBits));
+    }
+
+    // -------------------------------------------------------------------------
+    // Utility
+    // -------------------------------------------------------------------------
+
+    /**
+     * Integer log base 2. Used to compute bit widths.
+     * e.g. log2(64) = 6
+     */
+    protected int log2(int value) {
+        return (int) (Math.log(value) / Math.log(2));
+    }
+
+    public int getCacheSize()     { return cacheSize; }
+    public int getBlockSize()     { return blockSize; }
+    public int getNumberOfBlocks(){ return numberOfBlocks; }
+    public int getOffsetBits()    { return offsetBits; }
+    public int getIndexBits()     { return indexBits; }
+    public int getTagBits()       { return tagBits; }
+    public SimulationStats getStats() { return stats; }
+
+    @Override
+    public String toString() {
+        return String.format(
+            "[%s] Size=%d B | BlockSize=%d B | Blocks=%d | tagBits=%d | indexBits=%d | offsetBits=%d",
+            getClass().getSimpleName(), cacheSize, blockSize, numberOfBlocks, tagBits, indexBits, offsetBits
+        );
+    }
+}
