@@ -1,0 +1,232 @@
+# Stress Memory Trace — 200 accesses
+# Designed to stress-test cache eviction, write-back, and conflict resolution.
+# Includes: high-conflict patterns, write-heavy sections, and wide address ranges.
+
+# ============================================================
+# Section 1: Sequential read sweep (40 accesses)
+# Covers a contiguous range — tests cold-start compulsory misses.
+# ============================================================
+R 0x00010000
+R 0x00010040
+R 0x00010080
+R 0x000100C0
+R 0x00010100
+R 0x00010140
+R 0x00010180
+R 0x000101C0
+R 0x00010200
+R 0x00010240
+R 0x00010280
+R 0x000102C0
+R 0x00010300
+R 0x00010340
+R 0x00010380
+R 0x000103C0
+R 0x00010400
+R 0x00010440
+R 0x00010480
+R 0x000104C0
+R 0x00010500
+R 0x00010540
+R 0x00010580
+R 0x000105C0
+R 0x00010600
+R 0x00010640
+R 0x00010680
+R 0x000106C0
+R 0x00010700
+R 0x00010740
+R 0x00010780
+R 0x000107C0
+R 0x00010800
+R 0x00010840
+R 0x00010880
+R 0x000108C0
+R 0x00010900
+R 0x00010940
+R 0x00010980
+R 0x000109C0
+
+# ============================================================
+# Section 2: Conflict-heavy pattern (40 accesses)
+# These addresses differ only in high-order bits, so they map
+# to the same cache set in a direct-mapped or low-associativity cache.
+# Forces repeated evictions of the same set.
+# ============================================================
+R 0x00001000
+R 0x00011000
+R 0x00021000
+R 0x00031000
+R 0x00001000
+R 0x00041000
+R 0x00051000
+R 0x00001000
+W 0x00011000
+W 0x00021000
+R 0x00031000
+R 0x00061000
+R 0x00071000
+R 0x00001000
+W 0x00081000
+R 0x00091000
+R 0x000A1000
+R 0x00001000
+R 0x000B1000
+R 0x000C1000
+R 0x00001000
+W 0x000D1000
+R 0x000E1000
+R 0x000F1000
+R 0x00001000
+R 0x00101000
+W 0x00111000
+R 0x00121000
+R 0x00001000
+R 0x00131000
+R 0x00141000
+R 0x00151000
+R 0x00001000
+W 0x00161000
+R 0x00171000
+R 0x00181000
+R 0x00001000
+R 0x00191000
+W 0x001A1000
+R 0x00001000
+
+# ============================================================
+# Section 3: Write-heavy burst (40 accesses)
+# Stresses write-back / write-through policy with rapid writes.
+# ============================================================
+W 0x00020000
+W 0x00020004
+W 0x00020008
+W 0x0002000C
+W 0x00020010
+W 0x00020014
+W 0x00020018
+W 0x0002001C
+W 0x00020020
+W 0x00020024
+W 0x00020028
+W 0x0002002C
+W 0x00020030
+W 0x00020034
+W 0x00020038
+W 0x0002003C
+W 0x00020040
+W 0x00020044
+W 0x00020048
+W 0x0002004C
+R 0x00020000
+R 0x00020004
+R 0x00020008
+R 0x0002000C
+R 0x00020010
+R 0x00020014
+R 0x00020018
+R 0x0002001C
+R 0x00020020
+R 0x00020024
+W 0x00020028
+W 0x0002002C
+W 0x00020030
+W 0x00020034
+W 0x00020038
+W 0x0002003C
+W 0x00020040
+W 0x00020044
+W 0x00020048
+W 0x0002004C
+
+# ============================================================
+# Section 4: Looping pattern (40 accesses)
+# Accesses 8 distinct blocks repeatedly for 5 iterations.
+# Tests temporal locality — LRU should keep all 8 if cache is large enough.
+# ============================================================
+R 0x00030000
+R 0x00030040
+R 0x00030080
+R 0x000300C0
+R 0x00030100
+R 0x00030140
+R 0x00030180
+R 0x000301C0
+R 0x00030000
+R 0x00030040
+R 0x00030080
+R 0x000300C0
+R 0x00030100
+R 0x00030140
+R 0x00030180
+R 0x000301C0
+R 0x00030000
+R 0x00030040
+R 0x00030080
+R 0x000300C0
+R 0x00030100
+R 0x00030140
+R 0x00030180
+R 0x000301C0
+R 0x00030000
+R 0x00030040
+R 0x00030080
+R 0x000300C0
+R 0x00030100
+R 0x00030140
+R 0x00030180
+R 0x000301C0
+R 0x00030000
+R 0x00030040
+R 0x00030080
+R 0x000300C0
+R 0x00030100
+R 0x00030140
+R 0x00030180
+R 0x000301C0
+
+# ============================================================
+# Section 5: Wide address scatter (40 accesses)
+# Addresses spread across the full 32-bit space.
+# Guarantees cache misses and tests tag-bit handling.
+# ============================================================
+R 0x10000000
+W 0x20000000
+R 0x30000000
+W 0x40000000
+R 0x50000000
+R 0x60000000
+W 0x70000000
+R 0x80000000
+R 0x90000000
+W 0xA0000000
+R 0xB0000000
+R 0xC0000000
+W 0xD0000000
+R 0xE0000000
+R 0xF0000000
+W 0xFF000000
+R 0x01000000
+W 0x02000000
+R 0x03000000
+R 0x04000000
+W 0x05000000
+R 0x06000000
+R 0x07000000
+W 0x08000000
+R 0x09000000
+R 0x0A000000
+W 0x0B000000
+R 0x0C000000
+R 0x0D000000
+W 0x0E000000
+R 0x0F000000
+R 0x10000000
+W 0x20000000
+R 0x30000000
+R 0x40000000
+W 0x50000000
+R 0x60000000
+R 0x70000000
+W 0x80000000
+R 0x90000000

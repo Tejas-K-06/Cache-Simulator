@@ -1,0 +1,39 @@
+# Sample Memory Trace — 20 accesses
+# Demonstrates reads, writes, cache hits (repeated addresses), and cache misses.
+# Format: R|W 0xADDRESS
+
+# --- Sequential reads (spatial locality) ---
+R 0x00001000
+R 0x00001004
+R 0x00001008
+R 0x0000100C
+
+# --- A write to a new address ---
+W 0x00002000
+
+# --- Re-read a previous address (should be a hit) ---
+R 0x00001000
+
+# --- Writes to different addresses ---
+W 0x00003000
+W 0x00003040
+
+# --- Read-after-write (same block, should hit) ---
+R 0x00003000
+
+# --- Access a fresh set of addresses (likely misses) ---
+R 0x00004000
+R 0x00005000
+R 0x00006000
+W 0x00007000
+
+# --- Re-access older addresses (test eviction / LRU) ---
+R 0x00002000
+R 0x00004000
+W 0x00005000
+
+# --- Three more unique accesses ---
+R 0x00008000
+W 0x00009000
+R 0x0000A000
+W 0x0000B000
