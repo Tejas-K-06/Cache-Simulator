@@ -84,7 +84,7 @@ public class SetAssociativeCache extends Cache {
                 stats.recordHit();
                 block.setLastUsed(accessCounter);
                 if (isWrite) {
-                    writePolicy.onHit(block);
+                    writePolicy.onHit(block, stats);
                 }
                 return;
             }
@@ -95,7 +95,7 @@ public class SetAssociativeCache extends Cache {
         CacheBlock victim = replacementPolicy.evict(currentSet);
         victim.load(tag, insertCounter++);
         if (isWrite) {
-            writePolicy.onMiss(victim);
+            writePolicy.onMiss(victim, stats);
         }
     }
 }
