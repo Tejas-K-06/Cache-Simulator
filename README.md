@@ -31,8 +31,8 @@ Modern CPUs don't read directly from RAM on every access — they use a small, f
 | Fully Associative Cache | ✅ Done |
 | LRU Replacement Policy | ✅ Done |
 | FIFO Replacement Policy | ✅ Done |
-| Write-Back Policy | 🚧 In Progress |
-| Write-Through Policy | 🚧 In Progress |
+| Write-Back Policy | ✅ Done |
+| Write-Through Policy | ✅ Done |
 | Trace Loader | 🚧 In Progress |
 | Simulation Stats | 🚧 In Progress |
 | Exception Handling | 🚧 In Progress |
