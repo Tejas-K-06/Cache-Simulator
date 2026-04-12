@@ -33,9 +33,9 @@ Modern CPUs don't read directly from RAM on every access — they use a small, f
 | FIFO Replacement Policy | ✅ Done |
 | Write-Back Policy | ✅ Done |
 | Write-Through Policy | ✅ Done |
-| Trace Loader | 🚧 In Progress |
-| Simulation Stats | 🚧 In Progress |
-| Exception Handling | 🚧 In Progress |
+| Trace Loader | ✅ Done |
+| Simulation Stats | ✅ Done |
+| Exception Handling | ✅ Done |
 | L1 → L2 → L3 Hierarchy | ✅ Done |
 | JSON Config Loader | ✅ Done |
 | UML Diagrams | 🚧 In Progress |
