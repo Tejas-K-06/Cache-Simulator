@@ -41,16 +41,35 @@ Modern CPUs don't read directly from RAM on every access — they use a small, f
 
 **Requirements:** JDK 17+. No external dependencies.
 
+### 1. Clone the Repository
 ```bash
-# Clone the repository
 git clone https://github.com/Tejas-K-06/Cache-Simulator.git
 cd Cache-Simulator
+```
 
-# Compile all source files
+### 2. Compile the Code
+We recommend creating an `out` directory to keep the compiled `.class` files separate from your source code.
+
+**For macOS / Linux:**
+```bash
 mkdir -p out
+# Compile by letting javac find dependencies automatically from the root
 javac -d out -sourcepath src src/main/Main.java
 
-# Run the simulator
+# OR compile by manually finding all java files (foolproof for zsh/bash):
+javac -d out $(find src -name "*.java")
+```
+
+**For Windows (Command Prompt / PowerShell):**
+```cmd
+mkdir out
+javac -d out -sourcepath src src/main/Main.java
+```
+
+### 3. Run the Simulator
+Make sure you run the `Main` class from the root folder, and tell Java to look in the `out` directory you just created:
+
+```bash
 java -cp out main.Main
 ```
 
