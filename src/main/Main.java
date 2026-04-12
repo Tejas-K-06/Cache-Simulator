@@ -11,7 +11,9 @@ import trace.TraceGenerator;
 import trace.TraceLoader;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main entry point for the Cache Simulator.
@@ -135,22 +137,30 @@ public class Main {
         System.out.println();
 
         // ==================================================================
-        // STEP 5: Trace Generation Utility (bonus)
+        // STEP 5: Multithreaded Trace Generation
         // ==================================================================
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("  STEP 5: Trace Generation Utility");
+        System.out.println("  STEP 5: Multithreaded Trace Generation");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         try {
-            // Generate different trace patterns for testing
-            TraceGenerator.generate("traces/generated_random.txt", 50, 16, 0.3);
-            TraceGenerator.generateSequential("traces/generated_sequential.txt",
-                    0x1000, 30, 64, false);
-            TraceGenerator.generateLooping("traces/generated_looping.txt",
-                    0x5000, 4, 10, false);
+            // Shared thread-safe error counter across all tasks
+            AtomicInteger errorCount = new AtomicInteger(0);
 
-            System.out.println("  ✓ Generated trace files can be loaded with:");
-            System.out.println("    TraceLoader.load(\"traces/generated_random.txt\")");
+            // Build a list of trace generation tasks (each will run on its own thread)
+            List<TraceGenerator.TraceTask> tasks = new ArrayList<>();
+            tasks.add(TraceGenerator.TraceTask.random(
+                    "traces/generated_random.txt", 50, 16, 0.3, errorCount));
+            tasks.add(TraceGenerator.TraceTask.sequential(
+                    "traces/generated_sequential.txt", 0x1000, 30, 64, false, errorCount));
+            tasks.add(TraceGenerator.TraceTask.looping(
+                    "traces/generated_looping.txt", 0x5000, 4, 10, false, errorCount));
+
+            // Generate all 3 traces in parallel using a 3-thread pool
+            TraceGenerator.generateAllParallel(tasks, 3);
+
+            System.out.println("  ✓ All trace files generated concurrently.");
+            System.out.println("    Load with: TraceLoader.load(\"traces/generated_random.txt\")");
 
         } catch (IOException e) {
             System.err.println("  ✗ Error generating traces: " + e.getMessage());
