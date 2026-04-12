@@ -47,7 +47,7 @@ git clone https://github.com/Tejas-K-06/Cache-Simulator.git
 cd Cache-Simulator
 ```
 ### 2. Compile and Run
-```
+
 The project follows a standard Java package structure with all source files inside the `src/` directory. The program entry point is `main.Main`.
 
 ### Fish Shell
