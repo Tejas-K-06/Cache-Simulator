@@ -289,7 +289,60 @@ Cache-Simulator/
 └── README.md
 ```
 
----
+
+## Compile and Run
+```
+The project follows a standard Java package structure with all source files inside the `src/` directory. The program entry point is `main.Main`.
+
+### Fish Shell
+
+Compile:
+
+```fish
+javac -g -d out (find src -type f -name "*.java")
+```
+
+Run:
+
+```fish
+java -cp out main.Main
+```
+
+### Bash
+
+Compile:
+
+```bash
+javac -g -d out $(find src -type f -name "*.java")
+```
+
+Run:
+
+```bash
+java -cp out main.Main
+```
+
+### Zsh
+
+Compile:
+
+```zsh
+javac -g -d out $(find src -type f -name "*.java")
+```
+
+Run:
+
+```zsh
+java -cp out main.Main
+```
+
+### Notes
+
+* `-g` embeds debugging information in the compiled `.class` files.
+* `-d out` places compiled classes into the `out/` directory while preserving the package structure.
+* `main.Main` is the fully qualified name of the program’s entry class.
+
+
 
 ## Team
 
