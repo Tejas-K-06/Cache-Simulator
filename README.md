@@ -36,8 +36,8 @@ Modern CPUs don't read directly from RAM on every access — they use a small, f
 | Trace Loader | 🚧 In Progress |
 | Simulation Stats | 🚧 In Progress |
 | Exception Handling | 🚧 In Progress |
-| L1 → L2 → L3 Hierarchy | 🚧 In Progress |
-| JSON Config Loader | 🚧 In Progress |
+| L1 → L2 → L3 Hierarchy | ✅ Done |
+| JSON Config Loader | ✅ Done |
 | UML Diagrams | 🚧 In Progress |
 
 ---
@@ -100,6 +100,10 @@ cache-simulator/
 │   │   ├── DirectMappedCache.java
 │   │   ├── SetAssociativeCache.java
 │   │   └── FullyAssociativeCache.java
+│   ├── config/
+│   │   ├── CacheConfig.java
+│   │   ├── CacheFactory.java
+│   │   └── ConfigLoader.java
 │   ├── policy/
 │   │   ├── ReplacementPolicy.java
 │   │   ├── LRUPolicy.java
@@ -149,6 +153,40 @@ W 0x0003B220
 |---|---|---|
 | 1 | `R` or `W` | Read or Write |
 | 2 | `0x...` | 32-bit hex memory address |
+
+---
+
+## Configuration Setup (JSON)
+
+The cache simulator loads its architecture dynamically using `config/cache_config.json`. You can build your hierarchy out of lightweight, cascading arrays.
+
+Example configuration for an `L1` (Direct Mapped) and `L2` (Set Associative) cache:
+
+```json
+{
+  "caches": [
+    {
+      "level": "L1",
+      "type": "DirectMapped",
+      "size": 1024,
+      "blockSize": 64,
+      "replacementPolicy": "LRU",
+      "writePolicy": "WriteThrough"
+    },
+    {
+      "level": "L2",
+      "type": "SetAssociative",
+      "size": 4096,
+      "blockSize": 64,
+      "associativity": 4,
+      "replacementPolicy": "LRU",
+      "writePolicy": "WriteBack"
+    }
+  ],
+  "mainMemorySize": 1048576,
+  "mainMemoryLatency": 100
+}
+```
 
 ---
 
