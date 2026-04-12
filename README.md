@@ -33,7 +33,7 @@ Modern CPUs don't read directly from RAM on every access — they use a small, f
 | Exception Handling | ✅ Done |
 | L1 → L2 → L3 Hierarchy | ✅ Done |
 | JSON Config Loader | ✅ Done |
-| UML Diagrams | 🚧 In Progress |
+| UML Diagrams | ✅ Done |
 
 ---
 

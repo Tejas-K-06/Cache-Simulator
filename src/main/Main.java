@@ -35,7 +35,7 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("╔════════════════════════════════════════════════════╗");
-        System.out.println("║            CACHE SIMULATOR v1.0                   ║");
+        System.out.println("║            CACHE SIMULATOR v1.0                    ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
         System.out.println();
 
@@ -171,7 +171,7 @@ public class Main {
         // ==================================================================
         System.out.println();
         System.out.println("╔════════════════════════════════════════════════════╗");
-        System.out.println("║          Simulation completed successfully!       ║");
+        System.out.println("║          Simulation completed successfully!        ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
     }
 }
