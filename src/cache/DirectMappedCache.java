@@ -66,14 +66,14 @@ public class DirectMappedCache extends Cache {
             // -------- HIT --------
             stats.recordHit();
             if (isWrite) {
-                writePolicy.onHit(blocks[index]);
+                writePolicy.onHit(blocks[index], stats);
             }
         } else {
             // -------- MISS --------
             stats.recordMiss();
             blocks[index].load(tag, insertCounter++);
             if (isWrite) {
-                writePolicy.onMiss(blocks[index]);
+                writePolicy.onMiss(blocks[index], stats);
             }
         }
     }
