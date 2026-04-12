@@ -20,16 +20,16 @@ public class SimulationStats {
     // Counters
     // -------------------------------------------------------------------------
 
-    private int hits = 0;
-    private int misses = 0;
+    private long hits = 0;
+    private long misses = 0;
 
-    private int readHits = 0;
-    private int readMisses = 0;
-    private int writeHits = 0;
-    private int writeMisses = 0;
+    private long readHits = 0;
+    private long readMisses = 0;
+    private long writeHits = 0;
+    private long writeMisses = 0;
 
-    private int evictionCount = 0;
-    private int writeBackCount = 0;
+    private long evictionCount = 0;
+    private long writeBackCount = 0;
 
     // -------------------------------------------------------------------------
     // Recording methods — backward-compatible overloads
@@ -99,16 +99,16 @@ public class SimulationStats {
     // Getters — raw counters
     // -------------------------------------------------------------------------
 
-    public int getHits()          { return hits; }
-    public int getMisses()        { return misses; }
+    public long getHits()          { return hits; }
+    public long getMisses()        { return misses; }
 
-    public int getReadHits()      { return readHits; }
-    public int getReadMisses()    { return readMisses; }
-    public int getWriteHits()     { return writeHits; }
-    public int getWriteMisses()   { return writeMisses; }
+    public long getReadHits()      { return readHits; }
+    public long getReadMisses()    { return readMisses; }
+    public long getWriteHits()     { return writeHits; }
+    public long getWriteMisses()   { return writeMisses; }
 
-    public int getEvictionCount() { return evictionCount; }
-    public int getWriteBackCount(){ return writeBackCount; }
+    public long getEvictionCount() { return evictionCount; }
+    public long getWriteBackCount(){ return writeBackCount; }
 
     // -------------------------------------------------------------------------
     // Computed metrics
@@ -117,21 +117,21 @@ public class SimulationStats {
     /**
      * @return Total number of accesses (hits + misses)
      */
-    public int getTotalAccesses() {
+    public long getTotalAccesses() {
         return hits + misses;
     }
 
     /**
      * @return Total number of read accesses
      */
-    public int getReadAccesses() {
+    public long getReadAccesses() {
         return readHits + readMisses;
     }
 
     /**
      * @return Total number of write accesses
      */
-    public int getWriteAccesses() {
+    public long getWriteAccesses() {
         return writeHits + writeMisses;
     }
 
@@ -139,7 +139,7 @@ public class SimulationStats {
      * @return Hit rate as a percentage (0.0 to 100.0), or 0.0 if no accesses
      */
     public double getHitRate() {
-        int total = getTotalAccesses();
+        long total = getTotalAccesses();
         if (total == 0) return 0.0;
         return (hits * 100.0) / total;
     }
@@ -148,7 +148,7 @@ public class SimulationStats {
      * @return Miss rate as a percentage (0.0 to 100.0), or 0.0 if no accesses
      */
     public double getMissRate() {
-        int total = getTotalAccesses();
+        long total = getTotalAccesses();
         if (total == 0) return 0.0;
         return (misses * 100.0) / total;
     }

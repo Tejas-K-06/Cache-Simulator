@@ -1,0 +1,23 @@
+{
+  "caches": [
+    {
+      "level": "L1",
+      "type": "DirectMapped",
+      "size": 1024,
+      "blockSize": 64,
+      "replacementPolicy": "LRU",
+      "writePolicy": "WriteThrough"
+    },
+    {
+      "level": "L2",
+      "type": "SetAssociative",
+      "size": 4096,
+      "blockSize": 64,
+      "associativity": 4,
+      "replacementPolicy": "LRU",
+      "writePolicy": "WriteBack"
+    }
+  ],
+  "mainMemorySize": 1048576,
+  "mainMemoryLatency": 100
+}

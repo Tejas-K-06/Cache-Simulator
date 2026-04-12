@@ -135,7 +135,7 @@ public class Main {
         System.out.println();
 
         // ==================================================================
-        // STEP 5: Trace Generation Demo (bonus utility)
+        // STEP 5: Trace Generation Utility (bonus)
         // ==================================================================
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  STEP 5: Trace Generation Utility");
