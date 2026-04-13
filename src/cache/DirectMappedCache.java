@@ -4,14 +4,6 @@ import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
 
-/**
- * Direct Mapped Cache — every address maps to exactly one block slot.
- *
- * No eviction policy is needed: on a miss, you simply overwrite the
- * single block at the computed index.
- *
- * Index bits = log2(numberOfBlocks)
- */
 public class DirectMappedCache extends Cache {
 
     private CacheBlock[] blocks;
@@ -38,23 +30,11 @@ public class DirectMappedCache extends Cache {
         }
     }
 
-    /**
-     * Direct Mapped uses log2(numberOfBlocks) index bits to select
-     * the unique block slot for any address.
-     */
     @Override
     protected int computeIndexBits() {
         return log2(numberOfBlocks);
     }
 
-    /**
-     * Process a single memory access.
-     *
-     * 1. Decompose address into index and tag.
-     * 2. Check the single block at that index for a tag match.
-     * 3. HIT  → record hit; on write delegate to writePolicy.
-     * 4. MISS → record miss; overwrite block with new tag; on write delegate to writePolicy.
-     */
     @Override
     public void access(int address, boolean isWrite) {
         accessCounter++;
@@ -63,13 +43,11 @@ public class DirectMappedCache extends Cache {
         int tag   = getTag(address);
 
         if (blocks[index].matches(tag)) {
-            // -------- HIT --------
             stats.recordHit();
             if (isWrite) {
                 writePolicy.onHit(blocks[index]);
             }
         } else {
-            // -------- MISS --------
             stats.recordMiss();
             blocks[index].load(tag, insertCounter++);
             if (isWrite) {

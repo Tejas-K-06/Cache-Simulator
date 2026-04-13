@@ -4,14 +4,6 @@ import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
 
-/**
- * Abstract base class for all cache types.
- * 
- * All three mapping techniques (Direct Mapped, Set Associative, Fully Associative)
- * extend this class and override the core access() method.
- * 
- * Holds references to pluggable ReplacementPolicy and WritePolicy (Strategy Pattern).
- */
 public abstract class Cache {
 
     protected int cacheSize;        // Total cache size in bytes
