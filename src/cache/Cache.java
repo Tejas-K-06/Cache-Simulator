@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 /**
  * Abstract base class for all cache types.
@@ -21,6 +22,7 @@ public abstract class Cache {
     protected int offsetBits;       // Number of bits for block offset
     protected int indexBits;        // Number of bits for index (0 for fully associative)
     protected int tagBits;          // Number of bits for tag
+    protected int addressBits;      // Total address bits computed from MainMemorySize
 
     protected ReplacementPolicy replacementPolicy;
     protected WritePolicy writePolicy;
@@ -33,12 +35,14 @@ public abstract class Cache {
      * @param replacementPolicy LRU or FIFO policy instance
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     
     public Cache(int cacheSize, int blockSize,
                 ReplacementPolicy replacementPolicy,
                 WritePolicy writePolicy,
-                SimulationStats stats) {
+                SimulationStats stats,
+                int addressBits) {
 
         this.cacheSize = cacheSize;
         this.blockSize = blockSize;
@@ -46,10 +50,11 @@ public abstract class Cache {
         this.replacementPolicy = replacementPolicy;
         this.writePolicy = writePolicy;
         this.stats = stats;
+        this.addressBits = addressBits;
 
         this.offsetBits = log2(blockSize);
         this.indexBits = computeIndexBits();
-        this.tagBits = 32 - indexBits - offsetBits; // 32-bit addresses
+        this.tagBits = addressBits - indexBits - offsetBits;
     }
 
     // -------------------------------------------------------------------------
@@ -60,10 +65,11 @@ public abstract class Cache {
      * Process a single memory access (read or write).
      * Must update stats on hit or miss.
      *
-     * @param address 32-bit memory address
-     * @param isWrite true if write operation, false if read
+     * @param address 32-bit physical memory address
+     * @param isWrite true if writing, false if reading
+     * @return MemoryAccess if a write-back generated, null otherwise
      */
-    public abstract void access(int address, boolean isWrite);
+    public abstract MemoryAccess access(int address, boolean isWrite);
 
     /**
      * Compute how many index bits this cache type uses.

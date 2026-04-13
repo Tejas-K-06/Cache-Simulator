@@ -14,7 +14,7 @@ public class ConfigLoader {
 
     private final String filepath;
     private final List<CacheConfig> cacheConfigs;
-    private int mainMemorySize;
+    private long mainMemorySize;
     private int mainMemoryLatency;
 
     public ConfigLoader(String filepath) {
@@ -37,7 +37,7 @@ public class ConfigLoader {
         json = json.replaceAll("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "");
 
         // Find main attributes manually
-        mainMemorySize = extractIntProperty(json, "mainMemorySize");
+        mainMemorySize = extractLongProperty(json, "mainMemorySize");
         mainMemoryLatency = extractIntProperty(json, "mainMemoryLatency");
 
         // Extract "caches" array
@@ -100,11 +100,24 @@ public class ConfigLoader {
         return Integer.parseInt(json.substring(start, end));
     }
 
+    private long extractLongProperty(String json, String property) {
+        String searchStr = "\"" + property + "\":";
+        int start = json.indexOf(searchStr);
+        if (start == -1) return -1;
+        start += searchStr.length();
+        int end = start;
+        while (end < json.length() && Character.isDigit(json.charAt(end))) {
+            end++;
+        }
+        if (start == end) return -1;
+        return Long.parseLong(json.substring(start, end));
+    }
+
     public List<CacheConfig> getCacheConfigs() {
         return cacheConfigs;
     }
 
-    public int getMainMemorySize() {
+    public long getMainMemorySize() {
         return mainMemorySize;
     }
 

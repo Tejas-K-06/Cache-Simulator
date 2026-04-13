@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 /**
  * Fully Associative Cache — any address can go into any block.
@@ -25,12 +26,14 @@ public class FullyAssociativeCache extends Cache {
      * @param replacementPolicy LRU or FIFO policy instance for eviction
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     public FullyAssociativeCache(int cacheSize, int blockSize,
                                   ReplacementPolicy replacementPolicy,
                                   WritePolicy writePolicy,
-                                  SimulationStats stats) {
-        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats);
+                                  SimulationStats stats,
+                                  int addressBits) {
+        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats, addressBits);
 
         blocks = new CacheBlock[numberOfBlocks];
         for (int i = 0; i < numberOfBlocks; i++) {
@@ -55,30 +58,43 @@ public class FullyAssociativeCache extends Cache {
      * 4. MISS → record miss; ask replacementPolicy for victim; load new tag; on write delegate.
      */
     @Override
-    public void access(int address, boolean isWrite) {
-        accessCounter++;
-
+    public MemoryAccess access(int address, boolean isWrite) {
         int tag = getTag(address);
 
         // Search all blocks for a hit
         for (CacheBlock block : blocks) {
             if (block.matches(tag)) {
                 // -------- HIT --------
-                stats.recordHit();
-                block.setLastUsed(accessCounter);
+                stats.recordHit(isWrite);
+                block.setLastUsed(++accessCounter);
                 if (isWrite) {
                     writePolicy.onHit(block, stats);
                 }
-                return;
+                return null;
             }
         }
 
         // -------- MISS --------
-        stats.recordMiss();
+        stats.recordMiss(isWrite);
+
+        // Evict from any block in the cache
         CacheBlock victim = replacementPolicy.evict(blocks);
+        MemoryAccess writeBack = null;
+
+        if (victim.isValid()) {
+            if (victim.isDirty()) {
+                int victimAddress = (victim.getTag() << offsetBits);
+                writeBack = new MemoryAccess(victimAddress, true);
+            }
+            writePolicy.onEvict(victim, stats);
+        }
+
         victim.load(tag, insertCounter++);
+
         if (isWrite) {
             writePolicy.onMiss(victim, stats);
         }
+        
+        return writeBack;
     }
 }
