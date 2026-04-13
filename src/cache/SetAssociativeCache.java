@@ -81,7 +81,7 @@ public class SetAssociativeCache extends Cache {
         for (CacheBlock block : currentSet) {
             if (block.matches(tag)) {
                 // -------- HIT --------
-                stats.recordHit();
+                stats.recordHit(isWrite);
                 block.setLastUsed(accessCounter);
                 if (isWrite) {
                     writePolicy.onHit(block, stats);
@@ -91,7 +91,7 @@ public class SetAssociativeCache extends Cache {
         }
 
         // -------- MISS --------
-        stats.recordMiss();
+        stats.recordMiss(isWrite);
         CacheBlock victim = replacementPolicy.evict(currentSet);
         victim.load(tag, insertCounter++);
         if (isWrite) {

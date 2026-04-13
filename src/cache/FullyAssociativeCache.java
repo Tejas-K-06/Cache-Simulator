@@ -64,7 +64,7 @@ public class FullyAssociativeCache extends Cache {
         for (CacheBlock block : blocks) {
             if (block.matches(tag)) {
                 // -------- HIT --------
-                stats.recordHit();
+                stats.recordHit(isWrite);
                 block.setLastUsed(accessCounter);
                 if (isWrite) {
                     writePolicy.onHit(block, stats);
@@ -74,7 +74,7 @@ public class FullyAssociativeCache extends Cache {
         }
 
         // -------- MISS --------
-        stats.recordMiss();
+        stats.recordMiss(isWrite);
         CacheBlock victim = replacementPolicy.evict(blocks);
         victim.load(tag, insertCounter++);
         if (isWrite) {

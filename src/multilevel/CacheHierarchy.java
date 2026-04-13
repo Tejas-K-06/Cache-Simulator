@@ -115,17 +115,8 @@ public class CacheHierarchy {
                 levelName, request.getAddress(),
                 levelIndex + 1 < levels.size() ? "L" + (levelIndex + 2) : "Main Memory");
 
-        accessLevel(levelIndex + 1, request);
-
-        // ---- Inclusive policy: load block back into this level after miss ----
-        // On a write-miss the block is loaded and the write is applied.
-        // On a read-miss the block is simply loaded (cache.access handles it).
-        //
-        // We call access() a second time now that the block has been fetched
-        // from a deeper level, so the cache can load it in via its normal eviction
-        // and load logic. This is intentional — the subclass handles the actual
-        // CacheBlock.load() call inside its access() override.
-        currentCache.access(request.getAddress(), request.isWrite());
+        MemoryAccess fetchRequest = new MemoryAccess(request.getAddress(), false);
+        accessLevel(levelIndex + 1, fetchRequest);
 
         return true;
     }

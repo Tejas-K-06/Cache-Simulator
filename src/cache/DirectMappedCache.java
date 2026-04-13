@@ -64,13 +64,13 @@ public class DirectMappedCache extends Cache {
 
         if (blocks[index].matches(tag)) {
             // -------- HIT --------
-            stats.recordHit();
+            stats.recordHit(isWrite);
             if (isWrite) {
                 writePolicy.onHit(blocks[index], stats);
             }
         } else {
             // -------- MISS --------
-            stats.recordMiss();
+            stats.recordMiss(isWrite);
             blocks[index].load(tag, insertCounter++);
             if (isWrite) {
                 writePolicy.onMiss(blocks[index], stats);
