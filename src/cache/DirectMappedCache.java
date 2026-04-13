@@ -25,12 +25,14 @@ public class DirectMappedCache extends Cache {
      * @param replacementPolicy Unused in Direct Mapped (only one candidate slot)
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     public DirectMappedCache(int cacheSize, int blockSize,
                              ReplacementPolicy replacementPolicy,
                              WritePolicy writePolicy,
-                             SimulationStats stats) {
-        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats);
+                             SimulationStats stats,
+                             int addressBits) {
+        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats, addressBits);
 
         blocks = new CacheBlock[numberOfBlocks];
         for (int i = 0; i < numberOfBlocks; i++) {

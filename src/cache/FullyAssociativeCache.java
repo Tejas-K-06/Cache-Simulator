@@ -25,12 +25,14 @@ public class FullyAssociativeCache extends Cache {
      * @param replacementPolicy LRU or FIFO policy instance for eviction
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     public FullyAssociativeCache(int cacheSize, int blockSize,
                                   ReplacementPolicy replacementPolicy,
                                   WritePolicy writePolicy,
-                                  SimulationStats stats) {
-        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats);
+                                  SimulationStats stats,
+                                  int addressBits) {
+        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats, addressBits);
 
         blocks = new CacheBlock[numberOfBlocks];
         for (int i = 0; i < numberOfBlocks; i++) {

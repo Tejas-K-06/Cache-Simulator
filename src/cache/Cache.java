@@ -21,6 +21,7 @@ public abstract class Cache {
     protected int offsetBits;       // Number of bits for block offset
     protected int indexBits;        // Number of bits for index (0 for fully associative)
     protected int tagBits;          // Number of bits for tag
+    protected int addressBits;      // Total address bits computed from MainMemorySize
 
     protected ReplacementPolicy replacementPolicy;
     protected WritePolicy writePolicy;
@@ -33,12 +34,14 @@ public abstract class Cache {
      * @param replacementPolicy LRU or FIFO policy instance
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     
     public Cache(int cacheSize, int blockSize,
                 ReplacementPolicy replacementPolicy,
                 WritePolicy writePolicy,
-                SimulationStats stats) {
+                SimulationStats stats,
+                int addressBits) {
 
         this.cacheSize = cacheSize;
         this.blockSize = blockSize;
@@ -46,10 +49,11 @@ public abstract class Cache {
         this.replacementPolicy = replacementPolicy;
         this.writePolicy = writePolicy;
         this.stats = stats;
+        this.addressBits = addressBits;
 
         this.offsetBits = log2(blockSize);
         this.indexBits = computeIndexBits();
-        this.tagBits = 32 - indexBits - offsetBits; // 32-bit addresses
+        this.tagBits = addressBits - indexBits - offsetBits;
     }
 
     // -------------------------------------------------------------------------

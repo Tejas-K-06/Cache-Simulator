@@ -29,20 +29,22 @@ public class SetAssociativeCache extends Cache {
      * @param replacementPolicy LRU or FIFO policy instance for within-set eviction
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     public SetAssociativeCache(int cacheSize, int blockSize,
                                 int associativity,
                                 ReplacementPolicy replacementPolicy,
                                 WritePolicy writePolicy,
-                                SimulationStats stats) {
-        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats);
+                                SimulationStats stats,
+                                int addressBits) {
+        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats, addressBits);
 
         this.associativity = associativity;
         this.numberOfSets  = numberOfBlocks / associativity;
 
         // Recompute index/tag bits now that associativity is known
         this.indexBits = computeIndexBits();
-        this.tagBits   = 32 - indexBits - offsetBits;
+        this.tagBits   = addressBits - indexBits - offsetBits;
 
         sets = new CacheBlock[numberOfSets][associativity];
         for (int i = 0; i < numberOfSets; i++) {
