@@ -18,6 +18,6 @@
       "writePolicy": "WriteBack"
     }
   ],
-  "mainMemorySize": 1048576,
+  "mainMemorySize": 4294967296,
   "mainMemoryLatency": 100
 }

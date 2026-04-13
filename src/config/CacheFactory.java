@@ -31,7 +31,7 @@ public class CacheFactory {
         MainMemory mainMemory = new MainMemory(); // assuming MainMemory has a default constructor (or we can inject latency/size later)
         CacheHierarchy hierarchy = new CacheHierarchy(mainMemory);
 
-        int mainMemorySize = loader.getMainMemorySize();
+        long mainMemorySize = loader.getMainMemorySize();
         int addressBits = (int) (Math.log(mainMemorySize) / Math.log(2));
 
         List<CacheConfig> configs = loader.getCacheConfigs();
