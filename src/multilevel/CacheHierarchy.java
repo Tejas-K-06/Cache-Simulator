@@ -101,8 +101,16 @@ public class CacheHierarchy {
         Cache currentCache = levels.get(levelIndex);
         String levelName = "L" + (levelIndex + 1);
 
-        // Try accessing the current cache level
-        boolean hit = tryAccess(currentCache, request);
+        long hitsBefore = currentCache.getStats().getHits();
+        MemoryAccess writeBack = currentCache.access(request.getAddress(), request.isWrite());
+        boolean hit = currentCache.getStats().getHits() > hitsBefore;
+
+        if (writeBack != null) {
+            System.out.printf("[%s] EVICT DIRTY @ address 0x%08X → triggering write-back to %s%n",
+                    levelName, writeBack.getAddress(),
+                    levelIndex + 1 < levels.size() ? "L" + (levelIndex + 2) : "Main Memory");
+            accessLevel(levelIndex + 1, writeBack);
+        }
 
         if (hit) {
             // Cache hit at this level — stats already recorded inside cache.access()
@@ -121,29 +129,7 @@ public class CacheHierarchy {
         return true;
     }
 
-    // -------------------------------------------------------------------------
-    // Internal helper
-    // -------------------------------------------------------------------------
 
-    /**
-     * Attempts an access on the given cache level.
-     *
-     * This delegates directly to cache.access(), which internally records
-     * hits/misses to its SimulationStats object. We rely on the cache returning
-     * its SimulationStats hit count to detect whether a hit occurred.
-     *
-     * Note: the cache subclasses are responsible for recording their own stats.
-     * CacheHierarchy only controls the flow of the chain.
-     *
-     * @param cache   The cache level to access
-     * @param request The memory access request
-     * @return true if it was a hit, false if a miss
-     */
-    private boolean tryAccess(Cache cache, MemoryAccess request) {
-        long hitsBefore = cache.getStats().getHits();
-        cache.access(request.getAddress(), request.isWrite());
-        return cache.getStats().getHits() > hitsBefore;
-    }
 
     // -------------------------------------------------------------------------
     // Reporting

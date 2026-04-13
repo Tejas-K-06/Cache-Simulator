@@ -44,4 +44,14 @@ public interface WritePolicy {
     default void onMiss(CacheBlock block) {
         onMiss(block, null);
     }
+
+    /**
+     * Called when a block is actively evicted to make room for a new allocation.
+     *
+     * @param victim The block being evicted.
+     * @param stats Cache-level stats.
+     */
+    default void onEvict(CacheBlock victim, SimulationStats stats) {
+        victim.invalidate();
+    }
 }

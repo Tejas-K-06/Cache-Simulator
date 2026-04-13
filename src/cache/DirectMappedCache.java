@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 /**
  * Direct Mapped Cache — every address maps to exactly one block slot.
@@ -58,7 +59,7 @@ public class DirectMappedCache extends Cache {
      * 4. MISS → record miss; overwrite block with new tag; on write delegate to writePolicy.
      */
     @Override
-    public void access(int address, boolean isWrite) {
+    public MemoryAccess access(int address, boolean isWrite) {
         accessCounter++;
 
         int index = getIndex(address);
@@ -67,16 +68,33 @@ public class DirectMappedCache extends Cache {
         if (blocks[index].matches(tag)) {
             // -------- HIT --------
             stats.recordHit(isWrite);
+            blocks[index].setLastUsed(++accessCounter);
             if (isWrite) {
                 writePolicy.onHit(blocks[index], stats);
             }
+            return null;
         } else {
             // -------- MISS --------
             stats.recordMiss(isWrite);
+
+            CacheBlock victim = blocks[index];
+            MemoryAccess writeBack = null;
+
+            if (victim.isValid()) {
+                if (victim.isDirty()) {
+                    int victimAddress = (victim.getTag() << (indexBits + offsetBits)) | (index << offsetBits);
+                    writeBack = new MemoryAccess(victimAddress, true);
+                }
+                writePolicy.onEvict(victim, stats);
+            }
+
             blocks[index].load(tag, insertCounter++);
+
             if (isWrite) {
                 writePolicy.onMiss(blocks[index], stats);
             }
+            
+            return writeBack;
         }
     }
 }

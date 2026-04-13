@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 /**
  * Abstract base class for all cache types.
@@ -64,10 +65,11 @@ public abstract class Cache {
      * Process a single memory access (read or write).
      * Must update stats on hit or miss.
      *
-     * @param address 32-bit memory address
-     * @param isWrite true if write operation, false if read
+     * @param address 32-bit physical memory address
+     * @param isWrite true if writing, false if reading
+     * @return MemoryAccess if a write-back generated, null otherwise
      */
-    public abstract void access(int address, boolean isWrite);
+    public abstract MemoryAccess access(int address, boolean isWrite);
 
     /**
      * Compute how many index bits this cache type uses.
