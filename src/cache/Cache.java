@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 public abstract class Cache {
 
@@ -13,6 +14,7 @@ public abstract class Cache {
     protected int offsetBits;       // Number of bits for block offset
     protected int indexBits;        // Number of bits for index (0 for fully associative)
     protected int tagBits;          // Number of bits for tag
+    protected int addressBits;      // Total address bits computed from MainMemorySize
 
     protected ReplacementPolicy replacementPolicy;
     protected WritePolicy writePolicy;
@@ -25,12 +27,14 @@ public abstract class Cache {
      * @param replacementPolicy LRU or FIFO policy instance
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     
     public Cache(int cacheSize, int blockSize,
                 ReplacementPolicy replacementPolicy,
                 WritePolicy writePolicy,
-                SimulationStats stats) {
+                SimulationStats stats,
+                int addressBits) {
 
         this.cacheSize = cacheSize;
         this.blockSize = blockSize;
@@ -38,24 +42,22 @@ public abstract class Cache {
         this.replacementPolicy = replacementPolicy;
         this.writePolicy = writePolicy;
         this.stats = stats;
+        this.addressBits = addressBits;
 
         this.offsetBits = log2(blockSize);
         this.indexBits = computeIndexBits();
-        this.tagBits = 32 - indexBits - offsetBits; // 32-bit addresses
+        this.tagBits = addressBits - indexBits - offsetBits;
     }
-
-    // -------------------------------------------------------------------------
-    // Abstract methods — each cache type must implement these
-    // -------------------------------------------------------------------------
 
     /**
      * Process a single memory access (read or write).
      * Must update stats on hit or miss.
      *
-     * @param address 32-bit memory address
-     * @param isWrite true if write operation, false if read
+     * @param address 32-bit physical memory address
+     * @param isWrite true if writing, false if reading
+     * @return MemoryAccess if a write-back generated, null otherwise
      */
-    public abstract void access(int address, boolean isWrite);
+    public abstract MemoryAccess access(int address, boolean isWrite);
 
     /**
      * Compute how many index bits this cache type uses.
@@ -64,41 +66,19 @@ public abstract class Cache {
      */
     protected abstract int computeIndexBits();
 
-    // -------------------------------------------------------------------------
-    // Shared address decomposition helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Extract the block offset from a 32-bit address.
-     */
     protected int getOffset(int address) {
         return address & ((1 << offsetBits) - 1);
     }
 
-    /**
-     * Extract the index from a 32-bit address.
-     * Returns 0 for fully associative (no index).
-     */
     protected int getIndex(int address) {
         if (indexBits == 0) return 0;
         return (address >> offsetBits) & ((1 << indexBits) - 1);
     }
 
-    /**
-     * Extract the tag from a 32-bit address.
-     */
     protected int getTag(int address) {
         return (address >> (offsetBits + indexBits));
     }
 
-    // -------------------------------------------------------------------------
-    // Utility
-    // -------------------------------------------------------------------------
-
-    /**
-     * Integer log base 2. Used to compute bit widths.
-     * e.g. log2(64) = 6
-     */
     protected int log2(int value) {
         return (int) (Math.log(value) / Math.log(2));
     }

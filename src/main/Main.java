@@ -15,6 +15,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Main entry point for the Cache Simulator.
+ *
+ * Combines all team members' work into a complete end-to-end simulation:
+ * - Config loading and hierarchy construction (Person 1 — Tejas / Person 2 —
+ * Jibran)
+ * - Replacement & write policies (Person 3 — Kanak)
+ * - Trace loading, trace generation, simulation stats, exception handling
+ * (Person 4 — Varad)
+ *
+ * Flow:
+ * 1. Load cache configuration from JSON
+ * 2. Build the cache hierarchy (L1 → L2 → Main Memory)
+ * 3. Load a memory trace file
+ * 4. Feed every memory access through the hierarchy (actual simulation)
+ * 5. Print the per-level statistics report
+ */
 public class Main {
 
     public static void main(String[] args) {
@@ -58,7 +75,7 @@ public class Main {
         System.out.println("  STEP 2: Loading Memory Trace");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        String traceFile = "traces/sample_trace.txt";
+        String traceFile = args.length > 0 ? args[0] : "traces/sample_trace.txt";
         List<MemoryAccess> trace;
 
         try {

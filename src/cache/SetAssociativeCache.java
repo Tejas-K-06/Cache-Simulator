@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 
 public class SetAssociativeCache extends Cache {
@@ -21,19 +22,21 @@ public class SetAssociativeCache extends Cache {
      * @param replacementPolicy LRU or FIFO policy instance for within-set eviction
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     public SetAssociativeCache(int cacheSize, int blockSize,
                                 int associativity,
                                 ReplacementPolicy replacementPolicy,
                                 WritePolicy writePolicy,
-                                SimulationStats stats) {
-        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats);
+                                SimulationStats stats,
+                                int addressBits) {
+        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats, addressBits);
 
         this.associativity = associativity;
         this.numberOfSets  = numberOfBlocks / associativity;
 
         this.indexBits = computeIndexBits();
-        this.tagBits   = 32 - indexBits - offsetBits;
+        this.tagBits   = addressBits - indexBits - offsetBits;
 
         sets = new CacheBlock[numberOfSets][associativity];
         for (int i = 0; i < numberOfSets; i++) {
@@ -49,9 +52,7 @@ public class SetAssociativeCache extends Cache {
     }
 
     @Override
-    public void access(int address, boolean isWrite) {
-        accessCounter++;
-
+    public MemoryAccess access(int address, boolean isWrite) {
         int index = getIndex(address);
         int tag   = getTag(address);
 
@@ -59,20 +60,37 @@ public class SetAssociativeCache extends Cache {
 
         for (CacheBlock block : currentSet) {
             if (block.matches(tag)) {
-                stats.recordHit();
-                block.setLastUsed(accessCounter);
+                // -------- HIT --------
+                stats.recordHit(isWrite);
+                block.setLastUsed(++accessCounter);
                 if (isWrite) {
-                    writePolicy.onHit(block);
+                    writePolicy.onHit(block, stats);
                 }
-                return;
+                return null;
             }
         }
 
-        stats.recordMiss();
+        // -------- MISS --------
+        stats.recordMiss(isWrite);
+
+        // Find victim block within the set
         CacheBlock victim = replacementPolicy.evict(currentSet);
-        victim.load(tag, insertCounter++);
-        if (isWrite) {
-            writePolicy.onMiss(victim);
+        MemoryAccess writeBack = null;
+
+        if (victim.isValid()) {
+            if (victim.isDirty()) {
+                int victimAddress = (victim.getTag() << (indexBits + offsetBits)) | (index << offsetBits);
+                writeBack = new MemoryAccess(victimAddress, true);
+            }
+            writePolicy.onEvict(victim, stats);
         }
+
+        victim.load(tag, insertCounter++);
+
+        if (isWrite) {
+            writePolicy.onMiss(victim, stats);
+        }
+        
+        return writeBack;
     }
 }

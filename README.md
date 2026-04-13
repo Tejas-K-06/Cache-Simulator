@@ -46,32 +46,60 @@ Modern CPUs don't read directly from RAM on every access — they use a small, f
 git clone https://github.com/Tejas-K-06/Cache-Simulator.git
 cd Cache-Simulator
 ```
+### 2. Compile and Run
 
-### 2. Compile the Code
-We recommend creating an `out` directory to keep the compiled `.class` files separate from your source code.
+The project follows a standard Java package structure with all source files inside the `src/` directory. The program entry point is `main.Main`.
 
-**For macOS / Linux:**
+### Fish Shell
+
+Compile:
+
+```fish
+javac -g -d out (find src -type f -name "*.java")
+```
+
+Run:
+
+```fish
+java -cp out main.Main
+```
+
+### Bash
+
+Compile:
+
 ```bash
-mkdir -p out
-# Compile by letting javac find dependencies automatically from the root
-javac -d out -sourcepath src src/main/Main.java
-
-# OR compile by manually finding all java files (foolproof for zsh/bash):
-javac -d out $(find src -name "*.java")
+javac -g -d out $(find src -type f -name "*.java")
 ```
 
-**For Windows (Command Prompt / PowerShell):**
-```cmd
-mkdir out
-javac -d out -sourcepath src src/main/Main.java
-```
-
-### 3. Run the Simulator
-Make sure you run the `Main` class from the root folder, and tell Java to look in the `out` directory you just created:
+Run:
 
 ```bash
 java -cp out main.Main
 ```
+
+### Zsh
+
+Compile:
+
+```zsh
+javac -g -d out $(find src -type f -name "*.java")
+```
+
+Run:
+
+```zsh
+java -cp out main.Main
+```
+
+### Notes
+
+* `-g` embeds debugging information in the compiled `.class` files.
+* `-d out` places compiled classes into the `out/` directory while preserving the package structure.
+* `main.Main` is the fully qualified name of the program’s entry class.
+
+
+
 
 ### Expected Output
 
@@ -289,7 +317,7 @@ Cache-Simulator/
 └── README.md
 ```
 
----
+
 
 ## Team
 

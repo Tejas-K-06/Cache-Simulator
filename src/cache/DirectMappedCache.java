@@ -3,6 +3,7 @@ package cache;
 import policy.ReplacementPolicy;
 import write.WritePolicy;
 import stats.SimulationStats;
+import trace.MemoryAccess;
 
 public class DirectMappedCache extends Cache {
 
@@ -17,12 +18,14 @@ public class DirectMappedCache extends Cache {
      * @param replacementPolicy Unused in Direct Mapped (only one candidate slot)
      * @param writePolicy       WriteBack or WriteThrough policy instance
      * @param stats             Shared stats object to record hits/misses
+     * @param addressBits       Total number of bits in physical address
      */
     public DirectMappedCache(int cacheSize, int blockSize,
                              ReplacementPolicy replacementPolicy,
                              WritePolicy writePolicy,
-                             SimulationStats stats) {
-        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats);
+                             SimulationStats stats,
+                             int addressBits) {
+        super(cacheSize, blockSize, replacementPolicy, writePolicy, stats, addressBits);
 
         blocks = new CacheBlock[numberOfBlocks];
         for (int i = 0; i < numberOfBlocks; i++) {
@@ -36,23 +39,42 @@ public class DirectMappedCache extends Cache {
     }
 
     @Override
-    public void access(int address, boolean isWrite) {
+    public MemoryAccess access(int address, boolean isWrite) {
         accessCounter++;
 
         int index = getIndex(address);
         int tag   = getTag(address);
 
         if (blocks[index].matches(tag)) {
-            stats.recordHit();
+            // -------- HIT --------
+            stats.recordHit(isWrite);
+            blocks[index].setLastUsed(++accessCounter);
             if (isWrite) {
-                writePolicy.onHit(blocks[index]);
+                writePolicy.onHit(blocks[index], stats);
             }
+            return null;
         } else {
-            stats.recordMiss();
-            blocks[index].load(tag, insertCounter++);
-            if (isWrite) {
-                writePolicy.onMiss(blocks[index]);
+            // -------- MISS --------
+            stats.recordMiss(isWrite);
+
+            CacheBlock victim = blocks[index];
+            MemoryAccess writeBack = null;
+
+            if (victim.isValid()) {
+                if (victim.isDirty()) {
+                    int victimAddress = (victim.getTag() << (indexBits + offsetBits)) | (index << offsetBits);
+                    writeBack = new MemoryAccess(victimAddress, true);
+                }
+                writePolicy.onEvict(victim, stats);
             }
+
+            blocks[index].load(tag, insertCounter++);
+
+            if (isWrite) {
+                writePolicy.onMiss(blocks[index], stats);
+            }
+            
+            return writeBack;
         }
     }
 }
