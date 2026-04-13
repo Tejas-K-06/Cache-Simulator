@@ -5,14 +5,6 @@ import write.WritePolicy;
 import stats.SimulationStats;
 import trace.MemoryAccess;
 
-/**
- * Abstract base class for all cache types.
- * 
- * All three mapping techniques (Direct Mapped, Set Associative, Fully Associative)
- * extend this class and override the core access() method.
- * 
- * Holds references to pluggable ReplacementPolicy and WritePolicy (Strategy Pattern).
- */
 public abstract class Cache {
 
     protected int cacheSize;        // Total cache size in bytes
@@ -57,10 +49,6 @@ public abstract class Cache {
         this.tagBits = addressBits - indexBits - offsetBits;
     }
 
-    // -------------------------------------------------------------------------
-    // Abstract methods — each cache type must implement these
-    // -------------------------------------------------------------------------
-
     /**
      * Process a single memory access (read or write).
      * Must update stats on hit or miss.
@@ -78,41 +66,19 @@ public abstract class Cache {
      */
     protected abstract int computeIndexBits();
 
-    // -------------------------------------------------------------------------
-    // Shared address decomposition helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Extract the block offset from a 32-bit address.
-     */
     protected int getOffset(int address) {
         return address & ((1 << offsetBits) - 1);
     }
 
-    /**
-     * Extract the index from a 32-bit address.
-     * Returns 0 for fully associative (no index).
-     */
     protected int getIndex(int address) {
         if (indexBits == 0) return 0;
         return (address >> offsetBits) & ((1 << indexBits) - 1);
     }
 
-    /**
-     * Extract the tag from a 32-bit address.
-     */
     protected int getTag(int address) {
         return (address >> (offsetBits + indexBits));
     }
 
-    // -------------------------------------------------------------------------
-    // Utility
-    // -------------------------------------------------------------------------
-
-    /**
-     * Integer log base 2. Used to compute bit widths.
-     * e.g. log2(64) = 6
-     */
     protected int log2(int value) {
         return (int) (Math.log(value) / Math.log(2));
     }

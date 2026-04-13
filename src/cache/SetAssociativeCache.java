@@ -5,15 +5,7 @@ import write.WritePolicy;
 import stats.SimulationStats;
 import trace.MemoryAccess;
 
-/**
- * Set Associative Cache — blocks are grouped into sets of N ways.
- *
- * An address maps to exactly one set (via index bits), then any way
- * within that set can hold it. Eviction within a set is delegated
- * to the ReplacementPolicy.
- *
- * Index bits = log2(numberOfSets), where numberOfSets = numberOfBlocks / associativity
- */
+
 public class SetAssociativeCache extends Cache {
 
     private CacheBlock[][] sets;
@@ -43,7 +35,6 @@ public class SetAssociativeCache extends Cache {
         this.associativity = associativity;
         this.numberOfSets  = numberOfBlocks / associativity;
 
-        // Recompute index/tag bits now that associativity is known
         this.indexBits = computeIndexBits();
         this.tagBits   = addressBits - indexBits - offsetBits;
 
@@ -55,22 +46,11 @@ public class SetAssociativeCache extends Cache {
         }
     }
 
-    /**
-     * Set Associative uses log2(numberOfSets) index bits.
-     */
     @Override
     protected int computeIndexBits() {
         return log2(numberOfSets);
     }
 
-    /**
-     * Process a single memory access.
-     *
-     * 1. Decompose address into index (which set) and tag.
-     * 2. Search all ways in that set for a matching tag.
-     * 3. HIT  → record hit; update lastUsed for LRU; on write delegate to writePolicy.
-     * 4. MISS → record miss; ask replacementPolicy for victim within set; load new tag; on write delegate.
-     */
     @Override
     public MemoryAccess access(int address, boolean isWrite) {
         int index = getIndex(address);
@@ -78,7 +58,6 @@ public class SetAssociativeCache extends Cache {
 
         CacheBlock[] currentSet = sets[index];
 
-        // Search all ways in the set for a hit
         for (CacheBlock block : currentSet) {
             if (block.matches(tag)) {
                 // -------- HIT --------
